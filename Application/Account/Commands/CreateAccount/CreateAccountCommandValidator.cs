@@ -1,5 +1,4 @@
-﻿using Application.Common.Models.Account;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Application.Account.Commands.CreateAccount
 {

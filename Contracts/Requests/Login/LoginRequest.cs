@@ -1,9 +1,9 @@
-namespace Application.Common.Models.Account
+﻿namespace Contracts.Requests.Login
 {
-    public class CreateAccountRequest
+    public class LoginRequest
     {
         public string Email { get; set; }
-        
+
         public string Password { get; set; }
     }
 }

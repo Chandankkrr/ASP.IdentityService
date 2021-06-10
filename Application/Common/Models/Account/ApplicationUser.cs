@@ -2,12 +2,12 @@ using System;
 
 namespace Application.Common.Models.Account
 {
-    public class CreateAccountResponse
+    public class ApplicationUser
     {
         public Guid Id { get; set; }
         
-        public string Email { get; set; }
+        public string Name { get; set; }
         
-        public bool Success { get; set; }
+        public string Email { get; set; }
     }
 }
