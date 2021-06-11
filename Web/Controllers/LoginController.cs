@@ -32,5 +32,13 @@ namespace Web.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("version")]
+        public ActionResult<string> Version()
+        {
+            var version = typeof(LoginController).Assembly.GetName().Version!.ToString();
+            
+            return version;
+        }
     }
 }

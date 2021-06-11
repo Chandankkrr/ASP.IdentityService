@@ -1,11 +1,11 @@
 using System;
 
-namespace Application.Common.Models.Account
+namespace Contracts.Responses.Account
 {
-    public class ApplicationUser
+    public class GetUserResponse: ServiceResponse
     {
         public Guid Id { get; set; }
-
+        
         public string Email { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Application.Common.Models.Account;
@@ -76,6 +77,29 @@ namespace Infrastructure.Services
 
             return new ApplicationUserResult
             {
+                Success = true
+            };
+        }
+
+        public async Task<ApplicationUserResult> GetUserAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                return new ApplicationUserResult
+                {
+                    Errors = new[] { $"User with id {userId.ToString()} does not exists" }
+                };
+            }
+
+            return new ApplicationUserResult
+            {
+                User = new ApplicationUser
+                {
+                    Id = userId,
+                    Email = user.Email,
+                },
                 Success = true
             };
         }

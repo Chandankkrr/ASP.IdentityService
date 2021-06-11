@@ -15,7 +15,7 @@ namespace Infrastructure
         {
             services.AddDbContextPool<ApplicationDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("IdentityCoreDBConnection"));
+                options.UseNpgsql(configuration["ConnectionStrings:IdentityCoreDBConnection"]);
             });
 
             services.AddIdentity<IdentityUser, IdentityRole>()

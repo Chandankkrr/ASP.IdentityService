@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Application.Account.Commands.CreateAccount;
+using Application.Account.Queries;
 using AutoMapper;
 using Contracts.Requests.Account;
 using Contracts.Responses.Account;
@@ -22,13 +23,25 @@ namespace Web.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult<CreateAccountResponse>> Register(CreateAccountRequest request)
+        public async Task<ActionResult<CreateAccountResponse>> Create(CreateAccountRequest request)
         {
             var command = _mapper.Map<CreateAccountCommand>(request);
             
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<CreateAccountResponse>(result);
+
+            return Ok(response);
+        }
+        
+        [HttpGet("user")]
+        public async Task<ActionResult<GetUserResponse>> GetUser(GetUserRequest request)
+        {
+            var query = _mapper.Map<GetUserQuery>(request);
+            
+            var result = await _mediator.Send(query);
+
+            var response = _mapper.Map<GetUserResponse>(result);
 
             return Ok(response);
         }

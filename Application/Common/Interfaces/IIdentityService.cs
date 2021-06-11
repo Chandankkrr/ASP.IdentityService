@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Application.Common.Models.Account;
 using Application.Common.Models.Login;
@@ -10,5 +11,7 @@ namespace Application.Common.Interfaces
         Task<LoginResult> LoginAsync(string email, string password);
 
         Task<ApplicationUserResult> RegisterAsync(IdentityUser user, string password);
+
+        Task<ApplicationUserResult> GetUserAsync(Guid userId);
     }
 }
