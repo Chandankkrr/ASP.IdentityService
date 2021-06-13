@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
         path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     environment:
       name: 'production'
@@ -53,5 +53,5 @@ jobs:
       with:
         app-name: 'aspidentity'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_a9576c9060b7448fba4c41776c6bd2b4 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_2fa6aa4ad9e9487d8feb8ea7bd43cc4b }}
         package: .
