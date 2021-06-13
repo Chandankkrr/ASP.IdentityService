@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Web.Installers;
 
 namespace Web
 {
@@ -24,45 +23,8 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "Asp.Identity API", Version = "v1",
-                    Description = "Identity Core API",
-                    Contact = new OpenApiContact
-                    {
-                        Name = "Chandan Rauniyar",
-                        Email = string.Empty,
-                        Url = new Uri("https://twitter.com/rauniyrchandan"),
-                    },
-                });
-                
-                var security = new OpenApiSecurityRequirement()
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Id = "Bearer",
-                                Type = ReferenceType.SecurityScheme
-                            }
-                        }, new List<string>()}
-                };
 
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
-                });
-
-                c.AddSecurityRequirement(security);
-            });
-
+            services.AddSwagger();
             services.AddApplication(Configuration);
             services.AddInfrastructure(Configuration);
         }
@@ -87,6 +49,8 @@ namespace Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapGet("/",
+                    context => context.Response.WriteAsync("Hello World!, Welcome to Microservices demo"));
             });
         }
     }

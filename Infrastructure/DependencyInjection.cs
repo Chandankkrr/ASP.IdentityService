@@ -13,9 +13,12 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddDbContextPool<ApplicationDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseNpgsql(configuration["ConnectionStrings:IdentityCoreDBConnection"]);
+                //options.UseNpgsql(configuration["ConnectionStrings:IdentityCoreDBConnection"]);
+                options.UseInMemoryDatabase("IdentityCore");
+
+
             });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
