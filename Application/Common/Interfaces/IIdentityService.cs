@@ -12,6 +12,6 @@ namespace Application.Common.Interfaces
 
         Task<ApplicationUserResult> RegisterAsync(IdentityUser user, string password);
 
-        Task<ApplicationUserResult> GetUserAsync(Guid userId);
+        Task<ApplicationUserResult> GetUserByIdAsync(Guid userId);
     }
 }

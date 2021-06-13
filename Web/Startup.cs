@@ -23,8 +23,8 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
             services.AddSwagger();
+
             services.AddApplication(Configuration);
             services.AddInfrastructure(Configuration);
         }

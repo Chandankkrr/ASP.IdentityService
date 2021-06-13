@@ -81,7 +81,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ApplicationUserResult> GetUserAsync(Guid userId)
+        public async Task<ApplicationUserResult> GetUserByIdAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
