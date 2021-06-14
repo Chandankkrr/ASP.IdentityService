@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Application.Login.Commands;
 using AutoMapper;
-using Contracts.Requests.Login;
-using Contracts.Responses.Account;
+using Contracts.Login.Requests;
+using Contracts.Login.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,14 +31,6 @@ namespace Web.Controllers
             var response = _mapper.Map<LoginResponse>(result);
 
             return Ok(response);
-        }
-
-        [HttpGet("version")]
-        public ActionResult<string> Version()
-        {
-            var version = typeof(LoginController).Assembly.GetName().Version!.ToString();
-            
-            return version;
         }
     }
 }

@@ -50,7 +50,8 @@ namespace Web
             {
                 endpoints.MapControllers();
                 endpoints.MapGet("/",
-                    context => context.Response.WriteAsync("Hello World!, Welcome to Microservices demo"));
+                    context => context.Response.WriteAsync(
+                        $"Welcome to Microservices demo, version: {typeof(Startup).Assembly.GetName().Version!}"));
             });
         }
     }

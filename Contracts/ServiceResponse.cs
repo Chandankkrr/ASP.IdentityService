@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Contracts.Responses.Account
+namespace Contracts
 {
     public class ServiceResponse
     {

@@ -1,12 +1,14 @@
+using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
 using Application.Account.Queries;
 using Application.Common.Models.Account;
 using Application.Common.Models.Login;
 using Application.Login.Commands;
 using AutoMapper;
-using Contracts.Requests.Account;
-using Contracts.Requests.Login;
-using Contracts.Responses.Account;
+using Contracts.Account.Requests;
+using Contracts.Account.Responses;
+using Contracts.Login.Requests;
+using Contracts.Login.Responses;
 
 namespace Application.Common.Mappings
 {
@@ -21,6 +23,10 @@ namespace Application.Common.Mappings
             CreateMap<ApplicationUserResult, GetUserResponse>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.User.Id))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email));
+
+            CreateMap<ChangePasswordRequest, ChangePasswordCommand>()
+                .ForMember(dest => dest.Token, opt => opt.Ignore());
+            CreateMap<ChangePasswordResult, ChangePasswordResponse>();
 
             // Login
             CreateMap<LoginRequest, LoginCommand>();

@@ -1,6 +1,6 @@
 using System;
 
-namespace Contracts.Requests.Account
+namespace Contracts.Account.Requests
 {
     public class GetUserRequest
     {

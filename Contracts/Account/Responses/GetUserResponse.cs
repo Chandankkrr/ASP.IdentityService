@@ -1,6 +1,6 @@
 using System;
 
-namespace Contracts.Responses.Account
+namespace Contracts.Account.Responses
 {
     public class GetUserResponse: ServiceResponse
     {

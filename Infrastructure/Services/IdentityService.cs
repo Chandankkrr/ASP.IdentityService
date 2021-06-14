@@ -103,5 +103,33 @@ namespace Infrastructure.Services
                 Success = true
             };
         }
+
+        public async Task<ChangePasswordResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            
+            if (user == null)
+            {
+                return new ChangePasswordResult
+                {
+                    Errors = new[] { $"User with id {userId} does not exists" }
+                };
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            if (!result.Succeeded)
+            {
+                return new ChangePasswordResult
+                {
+                    Errors = result.Errors.Select(e => e.Description)
+                };
+            }
+            
+            return new ChangePasswordResult
+            {
+                Success = true
+            };
+        }
     }
 }

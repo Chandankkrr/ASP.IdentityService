@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Application.Common.PipelineBehaviours;
+using Application.Common.PipelineBehaviors;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
