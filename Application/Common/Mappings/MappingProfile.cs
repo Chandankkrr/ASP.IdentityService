@@ -26,11 +26,11 @@ namespace Application.Common.Mappings
 
             CreateMap<ChangePasswordRequest, ChangePasswordCommand>()
                 .ForMember(dest => dest.Token, opt => opt.Ignore());
-            CreateMap<ChangePasswordResult, ChangePasswordResponse>();
+            CreateMap<ChangePasswordCommandResult, ChangePasswordResponse>();
 
             // Login
             CreateMap<LoginRequest, LoginCommand>();
-            CreateMap<LoginResult, LoginResponse>();
+            CreateMap<LoginCommandResult, LoginResponse>();
         }
     }
 }

@@ -8,12 +8,12 @@ namespace Application.Common.Interfaces
 {
     public interface IIdentityService
     {
-        Task<LoginResult> LoginAsync(string email, string password);
+        Task<LoginCommandResult> LoginAsync(string email, string password);
 
         Task<ApplicationUserResult> RegisterAsync(IdentityUser user, string password);
 
         Task<ApplicationUserResult> GetUserByIdAsync(Guid userId);
 
-        Task<ChangePasswordResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
+        Task<ChangePasswordCommandResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
     }
 }

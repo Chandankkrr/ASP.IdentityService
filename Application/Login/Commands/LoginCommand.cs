@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Login.Commands
 {
-    public class LoginCommand: IRequest<LoginResult>
+    public class LoginCommand: IRequest<LoginCommandResult>
     {
         public string Email { get; set; }
 

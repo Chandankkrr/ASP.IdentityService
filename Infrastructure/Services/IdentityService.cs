@@ -22,16 +22,16 @@ namespace Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<LoginResult> LoginAsync(string email, string password)
+        public async Task<LoginCommandResult> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                var userNotFoundMessage = $"User with email: {email} does not exist";
+                var userNotFoundMessage = $"User with email: {email} does not exists";
 
                 _logger.LogWarning(userNotFoundMessage);
 
-                return new LoginResult { Errors = new[] { userNotFoundMessage } };
+                return new LoginCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
             var isValidEmailPasswordCombination = await _userManager.CheckPasswordAsync(user, password);
@@ -40,12 +40,12 @@ namespace Infrastructure.Services
             {
                 _logger.LogWarning("Login failed for user, email or password is incorrect");
 
-                return new LoginResult { Errors = new[] { "Email or password is incorrect" } };
+                return new LoginCommandResult { Errors = new[] { "Email or password is incorrect" } };
             }
 
             var token = _tokenService.GenerateToken(user.Id);
 
-            return new LoginResult
+            return new LoginCommandResult
             {
                 Success = true,
                 Token = token
@@ -61,7 +61,7 @@ namespace Infrastructure.Services
             {
                 return new ApplicationUserResult
                 {
-                    Errors = new[] { $"User with email {email} already exists" }
+                    Errors = new[] { $"User with email: {email} already exists" }
                 };
             }
 
@@ -89,7 +89,7 @@ namespace Infrastructure.Services
             {
                 return new ApplicationUserResult
                 {
-                    Errors = new[] { $"User with id {userId.ToString()} does not exists" }
+                    Errors = new[] { $"User with id: {userId.ToString()} does not exists" }
                 };
             }
 
@@ -104,15 +104,15 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ChangePasswordResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+        public async Task<ChangePasswordCommandResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
         {
             var user = await _userManager.FindByIdAsync(userId);
             
             if (user == null)
             {
-                return new ChangePasswordResult
+                return new ChangePasswordCommandResult
                 {
-                    Errors = new[] { $"User with id {userId} does not exists" }
+                    Errors = new[] { $"User with id: {userId} does not exists" }
                 };
             }
 
@@ -120,13 +120,13 @@ namespace Infrastructure.Services
 
             if (!result.Succeeded)
             {
-                return new ChangePasswordResult
+                return new ChangePasswordCommandResult
                 {
                     Errors = result.Errors.Select(e => e.Description)
                 };
             }
             
-            return new ChangePasswordResult
+            return new ChangePasswordCommandResult
             {
                 Success = true
             };

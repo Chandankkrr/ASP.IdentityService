@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Login.Commands
 {
-    public class LoginCommandHandler: IRequestHandler<LoginCommand, LoginResult>
+    public class LoginCommandHandler: IRequestHandler<LoginCommand, LoginCommandResult>
     {
         private readonly IIdentityService _identityService;
 
@@ -15,7 +15,7 @@ namespace Application.Login.Commands
             _identityService = identityService;
         }
 
-        public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<LoginCommandResult> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var loginResponse = await _identityService.LoginAsync(request.Email, request.Password);
 

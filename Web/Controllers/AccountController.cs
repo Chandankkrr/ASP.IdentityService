@@ -35,6 +35,12 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<CreateAccountResponse>(result);
+            
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
 
             return CreatedAtAction("GetUser", response);
         }
@@ -52,6 +58,12 @@ namespace Web.Controllers
             var result = await _mediator.Send(query);
 
             var response = _mapper.Map<GetUserResponse>(result);
+            
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
 
             return Ok(response);
         }
@@ -69,6 +81,12 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<ChangePasswordResponse>(result);
+            
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
 
             return Ok(response);
         }

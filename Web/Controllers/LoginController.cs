@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Application.Login.Commands;
 using AutoMapper;
@@ -29,6 +30,12 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<LoginResponse>(result);
+
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
 
             return Ok(response);
         }

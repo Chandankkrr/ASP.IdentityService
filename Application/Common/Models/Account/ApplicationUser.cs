@@ -4,8 +4,8 @@ namespace Application.Common.Models.Account
 {
     public class ApplicationUser
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
-        public string Email { get; set; }
+        public string Email { get; init; }
     }
 }

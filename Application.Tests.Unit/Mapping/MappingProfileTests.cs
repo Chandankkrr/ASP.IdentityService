@@ -2,7 +2,7 @@
 using AutoMapper;
 using Xunit;
 
-namespace Application.Tests.Unit
+namespace Application.Tests.Unit.Mapping
 {
     public class MappingProfileTests
     {

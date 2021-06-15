@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Account.Commands.ChangePassword
 {
-    public class ChangePasswordCommand: IRequest<ChangePasswordResult>
+    public class ChangePasswordCommand: IRequest<ChangePasswordCommandResult>
     {
         public string CurrentPassword { get; set; }
         

@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Account.Commands.ChangePassword
 {
-    public class ChangePasswordCommandHandler: IRequestHandler<ChangePasswordCommand, ChangePasswordResult>
+    public class ChangePasswordCommandHandler: IRequestHandler<ChangePasswordCommand, ChangePasswordCommandResult>
     {
         private readonly IIdentityService _identityService;
         private readonly ITokenService _tokenService;
@@ -19,7 +19,7 @@ namespace Application.Account.Commands.ChangePassword
             _tokenService = tokenService;
         }
 
-        public Task<ChangePasswordResult> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+        public Task<ChangePasswordCommandResult> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
             var decodedToken = _tokenService.DecodeToken(request.Token);
             var userId = decodedToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
