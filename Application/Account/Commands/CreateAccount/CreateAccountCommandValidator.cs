@@ -7,6 +7,7 @@ namespace Application.Account.Commands.CreateAccount
         public CreateAccountCommandValidator()
         {
             RuleFor(x => x.Email)
+                .NotEmpty()
                 .EmailAddress();
 
             RuleFor(x => x.Password)

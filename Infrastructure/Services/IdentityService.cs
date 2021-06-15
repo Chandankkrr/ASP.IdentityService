@@ -31,7 +31,7 @@ namespace Infrastructure.Services
 
                 _logger.LogWarning(userNotFoundMessage);
 
-                return new LoginResult { Errors = new string[] { userNotFoundMessage } };
+                return new LoginResult { Errors = new[] { userNotFoundMessage } };
             }
 
             var isValidEmailPasswordCombination = await _userManager.CheckPasswordAsync(user, password);
@@ -40,7 +40,7 @@ namespace Infrastructure.Services
             {
                 _logger.LogWarning("Login failed for user, email or password is incorrect");
 
-                return new LoginResult { Errors = new string[] { "Email or password is incorrect" } };
+                return new LoginResult { Errors = new[] { "Email or password is incorrect" } };
             }
 
             var token = _tokenService.GenerateToken(user.Id);

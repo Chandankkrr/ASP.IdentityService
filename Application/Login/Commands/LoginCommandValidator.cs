@@ -7,6 +7,7 @@ namespace Application.Login.Commands
         public LoginCommandValidator()
         {
             RuleFor(x => x.Email)
+                .NotEmpty()
                 .EmailAddress();
 
             RuleFor(x => x.Password)

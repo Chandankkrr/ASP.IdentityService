@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Common.Models;
 using FluentValidation;
 using MediatR;
 
@@ -9,6 +10,7 @@ namespace Application.Common.PipelineBehaviors
 {
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
+        where TResponse: Result, new()
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -29,7 +31,12 @@ namespace Application.Common.PipelineBehaviors
 
             if (failures.Any())
             {
-                throw new ValidationException(failures);
+                 var response = new TResponse
+                 {
+                     Errors = failures.Select(f => f.ErrorMessage)
+                 };
+                
+                 return response;
             }
 
             return await next();
