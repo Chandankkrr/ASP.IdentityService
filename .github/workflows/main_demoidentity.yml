@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build & Deploy demoidentity
+name: Build, Test & Deploy demoidentity
 
 on:
   push:
@@ -24,6 +24,9 @@ jobs:
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
 
     - name: dotnet publish
       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp ./Web/Web.csproj
