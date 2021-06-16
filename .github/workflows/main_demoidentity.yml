@@ -26,7 +26,7 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: Test
-      run: dotnet test Asp.Identity1.sln --no-build --verbosity normal
+      run: dotnet test Asp.Identity.sln --no-build --verbosity normal
 
     - name: dotnet publish
       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp ./Web/Web.csproj
