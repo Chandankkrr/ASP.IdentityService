@@ -43,7 +43,7 @@ namespace Infrastructure
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = true,
-                        ValidIssuers = new[] { "ck.identity.com" },
+                        ValidIssuers = new[] { configuration["Jwt:Issuer"] },
                         ValidateAudience = false
                     };
                 });

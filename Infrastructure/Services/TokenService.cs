@@ -29,7 +29,7 @@ namespace Infrastructure.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Sid, userId)
+                    new (ClaimTypes.Sid, userId)
                 }),
                 Issuer = _configuration["JWT:Issuer"],
                 Expires = DateTime.UtcNow.AddDays(7),
