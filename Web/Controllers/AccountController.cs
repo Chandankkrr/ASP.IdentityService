@@ -3,6 +3,9 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
+using Application.Account.Commands.ForgotPassword;
+using Application.Account.Commands.ResetPassword;
+using Application.Account.EventHandlers.ResetPassword;
 using Application.Account.Queries;
 using AutoMapper;
 using Contracts.Account.Requests;
@@ -81,6 +84,54 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<ChangePasswordResponse>(result);
+            
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("forgotpassword")]
+        public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword(ForgotPasswordRequest request)
+        {
+            var command = _mapper.Map<ForgotPasswordCommand>(request);
+
+            var result = await _mediator.Send(command);
+            var resetPasswordLink = Url.Action(nameof(ResetPassword), "Account", new
+                {
+                    email = request.Email,
+                    token = result.PasswordResetToken
+                },
+                Request.Scheme
+            );
+
+            var resetPasswordNotification = new ResetPasswordNotification
+            {
+                Email = request.Email,
+                ResetPasswordLink = resetPasswordLink
+            };
+
+            await _mediator.Publish(resetPasswordNotification);
+
+            var response = new ForgotPasswordResponse
+            {
+                Response = "If you have an account with us, a password reset email will be sent to your account"
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost("resetpassword")]
+        public async Task<ActionResult<ResetPasswordResponse>> ResetPassword(ResetPasswordRequest request)
+        {
+            var command = _mapper.Map<ResetPasswordCommand>(request);
+            
+            var result = await _mediator.Send(command);
+
+            var response = _mapper.Map<ResetPasswordResponse>(result);
             
             if (!response.Success)
             {

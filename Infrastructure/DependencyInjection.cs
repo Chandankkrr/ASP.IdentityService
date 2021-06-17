@@ -50,6 +50,7 @@ namespace Infrastructure
 
             services.AddSingleton<ITokenService, TokenService>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddSingleton<IEmailService, SendgridEmailService>();
 
             return services;
         }

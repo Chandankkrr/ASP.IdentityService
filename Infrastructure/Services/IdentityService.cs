@@ -131,5 +131,45 @@ namespace Infrastructure.Services
                 Success = true
             };
         }
+
+        public async Task<ResetPasswordCommandResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword)
+        {
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+            if (!result.Succeeded)
+            {
+                return new ResetPasswordCommandResult
+                {
+                    Errors = result.Errors.Select(e => e.Description)
+                };
+            }
+
+            return new ResetPasswordCommandResult
+            {
+                Response = "Password reset successful",
+                Success = true
+            };
+        }
+
+        public async Task<ForgotPasswordResult> GetPasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                var userNotFoundMessage = $"User with email: {email} does not exists";
+
+                _logger.LogWarning(userNotFoundMessage);
+
+                return new ForgotPasswordResult { Errors = new[] { userNotFoundMessage } };
+            }
+
+            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            
+            return new ForgotPasswordResult
+            {
+                PasswordResetToken = passwordResetToken,
+                Success = true
+            };
+        }
     }
 }

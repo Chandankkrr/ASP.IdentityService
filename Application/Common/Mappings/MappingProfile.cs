@@ -1,5 +1,7 @@
 using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
+using Application.Account.Commands.ForgotPassword;
+using Application.Account.Commands.ResetPassword;
 using Application.Account.Queries;
 using Application.Common.Models.Account;
 using Application.Common.Models.Login;
@@ -19,6 +21,7 @@ namespace Application.Common.Mappings
             // Account
             CreateMap<CreateAccountRequest, CreateAccountCommand>();
             CreateMap<ApplicationUserResult, CreateAccountResponse>();
+            
             CreateMap<GetUserRequest, GetUserQuery>();
             CreateMap<ApplicationUserResult, GetUserResponse>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.User.Id))
@@ -27,6 +30,11 @@ namespace Application.Common.Mappings
             CreateMap<ChangePasswordRequest, ChangePasswordCommand>()
                 .ForMember(dest => dest.Token, opt => opt.Ignore());
             CreateMap<ChangePasswordCommandResult, ChangePasswordResponse>();
+
+            CreateMap<ResetPasswordRequest, ResetPasswordCommand>();
+            CreateMap<ResetPasswordCommandResult, ResetPasswordResponse>();
+
+            CreateMap<ForgotPasswordRequest, ForgotPasswordCommand>();
 
             // Login
             CreateMap<LoginRequest, LoginCommand>();

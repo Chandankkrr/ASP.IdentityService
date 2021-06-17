@@ -15,5 +15,9 @@ namespace Application.Common.Interfaces
         Task<ApplicationUserResult> GetUserByIdAsync(Guid userId);
 
         Task<ChangePasswordCommandResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
+
+        Task<ResetPasswordCommandResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword);
+
+        Task<ForgotPasswordResult> GetPasswordResetTokenAsync(string email);
     }
 }
