@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Application.Common.Interfaces;
@@ -32,7 +33,7 @@ namespace Infrastructure.Services
                     new (ClaimTypes.Sid, userId)
                 }),
                 Issuer = _configuration["JWT:Issuer"],
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(
                         new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature
@@ -52,6 +53,14 @@ namespace Infrastructure.Services
             var tokenHandler = new JwtSecurityTokenHandler();
 
             return tokenHandler.ReadJwtToken(token);
+        }
+
+        public string GetSidFromToken(string token)
+        {
+            var decodedToken = DecodeToken(token);
+            var sid = decodedToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            return sid;
         }
     }
 }

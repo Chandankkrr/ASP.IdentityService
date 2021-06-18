@@ -5,6 +5,7 @@ using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
 using Application.Account.Commands.ForgotPassword;
 using Application.Account.Commands.ResetPassword;
+using Application.Account.EventHandlers.CreateAccount;
 using Application.Account.EventHandlers.ResetPassword;
 using Application.Account.Queries;
 using AutoMapper;
@@ -44,6 +45,13 @@ namespace Web.Controllers
                 // TODO return proper status code
                 return BadRequest(response);
             }
+            
+            var createAccountNotification = new CreateAccountNotification
+            {
+                Email = request.Email
+            };
+
+            await _mediator.Publish(createAccountNotification);
 
             return CreatedAtAction("GetUser", response);
         }

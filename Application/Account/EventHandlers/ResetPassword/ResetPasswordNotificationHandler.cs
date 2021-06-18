@@ -6,11 +6,11 @@ using MediatR;
 
 namespace Application.Account.EventHandlers.ResetPassword
 {
-    public class EmailResetPasswordLinkEventHandler: INotificationHandler<ResetPasswordNotification>
+    public class ResetPasswordNotificationHandler: INotificationHandler<ResetPasswordNotification>
     {
         private readonly IEmailService _emailService;
 
-        public EmailResetPasswordLinkEventHandler(IEmailService emailService)
+        public ResetPasswordNotificationHandler(IEmailService emailService)
         {
             _emailService = emailService;
         }

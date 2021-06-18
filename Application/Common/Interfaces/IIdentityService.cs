@@ -1,8 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using Application.Common.Models.Account;
 using Application.Common.Models.Login;
-using Microsoft.AspNetCore.Identity;
 
 namespace Application.Common.Interfaces
 {
@@ -10,13 +8,13 @@ namespace Application.Common.Interfaces
     {
         Task<LoginCommandResult> LoginAsync(string email, string password);
 
-        Task<ApplicationUserResult> RegisterAsync(IdentityUser user, string password);
+        Task<ApplicationUserResult> RegisterAsync(string email, string password);
 
-        Task<ApplicationUserResult> GetUserByIdAsync(Guid userId);
+        Task<ApplicationUserResult> GetUserByIdAsync(string userId);
 
         Task<ChangePasswordCommandResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 
-        Task<ResetPasswordCommandResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword);
+        Task<ResetPasswordCommandResult> ResetPasswordAsync(string email, string token, string newPassword);
 
         Task<ForgotPasswordResult> GetPasswordResetTokenAsync(string email);
     }

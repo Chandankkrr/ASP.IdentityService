@@ -17,7 +17,7 @@ namespace Application.Account.Queries
 
         public Task<ApplicationUserResult> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var user = _identityService.GetUserByIdAsync(request.Id);
+            var user = _identityService.GetUserByIdAsync(request.Id.ToString());
 
             return user;
         }

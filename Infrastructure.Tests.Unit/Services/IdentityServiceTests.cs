@@ -86,7 +86,7 @@ namespace Infrastructure.Tests.Unit.Services
             _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
 
             // Act
-            var result = await _identityService.RegisterAsync(user, It.IsAny<string>());
+            var result = await _identityService.RegisterAsync(email, It.IsAny<string>());
 
             // Assert
             result.Success.Should().BeFalse();
@@ -94,7 +94,7 @@ namespace Infrastructure.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task RegisterAsync_FailsToRegisterUser_WhenExceptionOccursWhenCreatingUser()
+        public async Task RegisterAsync_FailsToRegisterUser_WhenExceptionOccurs()
         {
             // Arrange
             const string email = "test@test.com";
@@ -104,7 +104,7 @@ namespace Infrastructure.Tests.Unit.Services
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError {Description = "Failed to create user"}));
 
             // Act
-            var result = await _identityService.RegisterAsync(user, It.IsAny<string>());
+            var result = await _identityService.RegisterAsync(email, It.IsAny<string>());
 
             // Assert
             result.Success.Should().BeFalse();
@@ -122,7 +122,7 @@ namespace Infrastructure.Tests.Unit.Services
                 .ReturnsAsync(IdentityResult.Success);
 
             // Act
-            var result = await _identityService.RegisterAsync(user, It.IsAny<string>());
+            var result = await _identityService.RegisterAsync(email, It.IsAny<string>());
 
             // Assert
             result.Success.Should().BeTrue();
@@ -137,7 +137,7 @@ namespace Infrastructure.Tests.Unit.Services
             _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync((IdentityUser) null);
 
             // Act
-            var result = await _identityService.GetUserByIdAsync(userId);
+            var result = await _identityService.GetUserByIdAsync(userId.ToString());
 
             // Assert
             result.Success.Should().BeFalse();
@@ -152,7 +152,7 @@ namespace Infrastructure.Tests.Unit.Services
                 .ReturnsAsync(new IdentityUser {Email = "test@test.com"});
 
             // Act
-            var result = await _identityService.GetUserByIdAsync(It.IsAny<Guid>());
+            var result = await _identityService.GetUserByIdAsync(It.IsAny<string>());
 
             // Assert
             result.Success.Should().BeTrue();
@@ -175,7 +175,7 @@ namespace Infrastructure.Tests.Unit.Services
         }
 
         [Fact]
-        public async Task ChangePasswordAsync_FailsToChangePassword_WhenExceptionOccursWhenChangingPassword()
+        public async Task ChangePasswordAsync_FailsToChangePassword_WhenExceptionOccurs()
         {
             // Arrange
             const string email = "test@test.com";
@@ -212,6 +212,100 @@ namespace Infrastructure.Tests.Unit.Services
             // Assert
             result.Success.Should().BeTrue();
             result.Errors.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task ResetPasswordAsync_ReturnsUserNotFound_WhenUserWithGivenEmailDoesNotExist()
+        {
+            // Arrange
+            const string email = "test@test.com";
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((IdentityUser) null);
+
+            // Act
+            var result = await _identityService.ResetPasswordAsync(email, It.IsAny<string>(), It.IsAny<string>());
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle(e => e == $"User with email: {email} does not exists");
+        }
+
+        [Fact]
+        public async Task ResetPasswordAsync_FailsToResetPassword_WhenExceptionOccurs()
+        {
+            // Arrange
+            const string email = "test@test.com";
+            var user = new IdentityUser {Email = email};
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.ResetPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Failed
+            (
+                new IdentityError {Description = "Failed to reset password"}
+            ));
+
+            // Act
+            var result = await _identityService.ResetPasswordAsync(email, It.IsAny<string>(), It.IsAny<string>());
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle(e => e == "Failed to reset password");
+        }
+        
+        [Fact]
+        public async Task ResetPasswordAsync_CanResetPasswordSuccessfully_WhenGivenEmailTokenAndNewPasswordAreValid()
+        {
+            // Arrange
+            const string email = "test@test.com";
+            var user = new IdentityUser {Email = email};
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.ResetPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _identityService.ResetPasswordAsync(email, It.IsAny<string>(), It.IsAny<string>());
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeNull();
+            result.Response.Should().Be("Password reset successful");
+        }
+
+        [Fact]
+        public async Task GetPasswordResetTokenAsync_ReturnsUserNotFound_WhenUserWithGivenEmailDoesNotExist()
+        {
+            // Arrange
+            const string email = "test@test.com";
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((IdentityUser) null);
+
+            // Act
+            var result = await _identityService.GetPasswordResetTokenAsync(email);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle(e => e == $"User with email: {email} does not exists");
+        }
+        
+        [Fact]
+        public async Task GetPasswordResetTokenAsync_ReturnsPasswordResetTokenForTheUser_WhenUserWithGivenEmailExists()
+        {
+            // Arrange
+            const string email = "test@test.com";
+            var user = new IdentityUser {Email = email};
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(It.IsAny<IdentityUser>()))
+                .ReturnsAsync("test-password-reset-token");
+
+            // Act
+            var result = await _identityService.GetPasswordResetTokenAsync(email);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Errors.Should().BeNull();
+            result.PasswordResetToken.Should().NotBeEmpty();
         }
     }
 }

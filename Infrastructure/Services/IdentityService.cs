@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Application.Common.Models.Account;
@@ -52,9 +51,8 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ApplicationUserResult> RegisterAsync(IdentityUser user, string password)
+        public async Task<ApplicationUserResult> RegisterAsync(string email, string password)
         {
-            var email = user.Email;
             var userExists = await _userManager.FindByEmailAsync(email);
 
             if (userExists != null)
@@ -65,6 +63,12 @@ namespace Infrastructure.Services
                 };
             }
 
+            var user = new IdentityUser
+            {
+                UserName = email,
+                Email = email
+            };
+            
             var result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
@@ -81,15 +85,15 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ApplicationUserResult> GetUserByIdAsync(Guid userId)
+        public async Task<ApplicationUserResult> GetUserByIdAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
                 return new ApplicationUserResult
                 {
-                    Errors = new[] { $"User with id: {userId.ToString()} does not exists" }
+                    Errors = new[] { $"User with id: {userId} does not exists" }
                 };
             }
 
@@ -132,8 +136,18 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ResetPasswordCommandResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword)
+        public async Task<ResetPasswordCommandResult> ResetPasswordAsync(string email, string token, string newPassword)
         {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                var userNotFoundMessage = $"User with email: {email} does not exists";
+
+                _logger.LogWarning(userNotFoundMessage);
+
+                return new ResetPasswordCommandResult { Errors = new[] { userNotFoundMessage } };
+            }
+            
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
 
             if (!result.Succeeded)

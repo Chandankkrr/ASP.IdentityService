@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Application.Common.Models.Account;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace Application.Account.Commands.CreateAccount
 {
@@ -18,13 +17,7 @@ namespace Application.Account.Commands.CreateAccount
 
         public async Task<ApplicationUserResult> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
-            var user = new IdentityUser
-            {
-                UserName = request.Email,
-                Email = request.Email,
-            };
-
-            var registrationResponse = await _identityService.RegisterAsync(user, request.Password);
+            var registrationResponse = await _identityService.RegisterAsync(request.Email, request.Password);
 
             return registrationResponse;
         }

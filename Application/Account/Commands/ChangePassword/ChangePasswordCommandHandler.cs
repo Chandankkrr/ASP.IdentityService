@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
@@ -21,8 +19,7 @@ namespace Application.Account.Commands.ChangePassword
 
         public Task<ChangePasswordCommandResult> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
-            var decodedToken = _tokenService.DecodeToken(request.Token);
-            var userId = decodedToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = _tokenService.GetSidFromToken(request.Token);
 
             var changePasswordResponse =
                 _identityService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);

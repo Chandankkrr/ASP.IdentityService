@@ -4,8 +4,10 @@ namespace Application.Common.Interfaces
 {
     public interface ITokenService
     {
-        string GenerateToken(string userId);
+        public string GenerateToken(string userId);
 
-        JwtSecurityToken DecodeToken(string token);
+        public JwtSecurityToken DecodeToken(string token);
+
+        public string GetSidFromToken(string token);
     }
 }
