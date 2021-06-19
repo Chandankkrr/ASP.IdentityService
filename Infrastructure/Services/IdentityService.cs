@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Application.Common.Interfaces;
 using Application.Common.Models.Account;
 using Application.Common.Models.Login;
@@ -148,7 +149,8 @@ namespace Infrastructure.Services
                 return new ResetPasswordCommandResult { Errors = new[] { userNotFoundMessage } };
             }
             
-            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            var decodedToken = HttpUtility.UrlDecode(token);
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
 
             if (!result.Succeeded)
             {
