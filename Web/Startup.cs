@@ -1,3 +1,4 @@
+using System.Linq;
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +28,20 @@ namespace Web
 
             services.AddApplication(Configuration);
             services.AddInfrastructure(Configuration);
+
+            var allowedOrigins = Configuration
+                .GetSection("AllowedOrigins")
+                .GetChildren()
+                .Select(c => c.Value)
+                .ToArray();
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                    builder.WithOrigins(allowedOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +60,7 @@ namespace Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {

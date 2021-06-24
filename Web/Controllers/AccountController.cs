@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
@@ -58,12 +57,16 @@ namespace Web.Controllers
         
         [Authorize]
         [HttpGet("user")]
-        public async Task<ActionResult<GetUserResponse>> GetUser([FromQuery] Guid id)
+        public async Task<ActionResult<GetUserResponse>> GetUser()
         {
+            var authorizationHeader = Request.Headers[HeaderNames.Authorization];
+            AuthenticationHeaderValue.TryParse(authorizationHeader, out var bearerToken);
+            
             var request = new GetUserRequest
             {
-                Id = id
+                Token = bearerToken?.Parameter
             };
+            
             var query = _mapper.Map<GetUserQuery>(request);
             
             var result = await _mediator.Send(query);

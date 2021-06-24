@@ -9,15 +9,19 @@ namespace Application.Account.Queries
     public class GetUserQueryHandler: IRequestHandler<GetUserQuery, ApplicationUserResult>
     {
         private readonly IIdentityService _identityService;
+        
+        private readonly ITokenService _tokenService;
 
-        public GetUserQueryHandler(IIdentityService identityService)
+        public GetUserQueryHandler(IIdentityService identityService, ITokenService tokenService)
         {
             _identityService = identityService;
+            _tokenService = tokenService;
         }
 
         public Task<ApplicationUserResult> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var user = _identityService.GetUserByIdAsync(request.Id.ToString());
+            var userId = _tokenService.GetSidFromToken(request.Token);
+            var user = _identityService.GetUserByIdAsync(userId);
 
             return user;
         }

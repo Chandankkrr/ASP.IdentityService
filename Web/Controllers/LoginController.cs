@@ -23,7 +23,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index([FromBody] LoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Index([FromBody] LoginRequest request)
         {
             var command = _mapper.Map<LoginCommand>(request);
             

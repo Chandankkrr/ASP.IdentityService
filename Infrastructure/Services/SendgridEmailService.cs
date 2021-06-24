@@ -29,6 +29,7 @@ namespace Infrastructure.Services
             };
             
             msg.AddTo(new EmailAddress(message.To));
+            msg.AddBcc(_configuration["BccEmailAddress"]);
             
             var response = await client.SendEmailAsync(msg);
 

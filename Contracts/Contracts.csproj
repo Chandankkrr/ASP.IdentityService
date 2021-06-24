@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Ck.Identity.Contracts</PackageId>
+    <Title>Identity Contracts</Title>
+    <Authors>Chandan Rauniyar</Authors>
   </PropertyGroup>
 
 </Project>

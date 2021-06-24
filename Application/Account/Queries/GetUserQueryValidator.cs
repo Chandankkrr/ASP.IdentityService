@@ -6,7 +6,7 @@ namespace Application.Account.Queries
     {
         public GetUserQueryValidator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.Token)
                 .NotEmpty();
         }
     }
