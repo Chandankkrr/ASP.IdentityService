@@ -76,7 +76,7 @@ namespace Web.Controllers
             if (!response.Success)
             {
                 // TODO return proper status code
-                return BadRequest(response);
+                return NotFound(response);
             }
 
             return Ok(response);
