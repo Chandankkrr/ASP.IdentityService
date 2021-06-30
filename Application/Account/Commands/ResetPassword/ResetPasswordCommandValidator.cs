@@ -19,6 +19,9 @@ namespace Application.Account.Commands.ResetPassword
                 .NotEmpty()
                 .Equal(x => x.NewPassword)
                 .WithMessage("Passwords do not match");
+
+            RuleFor(x => x.Token)
+                .NotEmpty();
         }
     }
 }

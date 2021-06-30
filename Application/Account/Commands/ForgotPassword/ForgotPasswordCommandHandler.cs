@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Account.Commands.ForgotPassword
 {
-    public class ForgotPasswordCommandHandler: IRequestHandler<ForgotPasswordCommand, ForgotPasswordResult>
+    public class ForgotPasswordCommandHandler: IRequestHandler<ForgotPasswordCommand, ForgotPasswordCommandResult>
     {
         private readonly IIdentityService _identityService;
 
@@ -15,7 +15,7 @@ namespace Application.Account.Commands.ForgotPassword
             _identityService = identityService;
         }
 
-        public async Task<ForgotPasswordResult> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<ForgotPasswordCommandResult> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             var passwordResetToken = await _identityService.GetPasswordResetTokenAsync(request.Email);
 

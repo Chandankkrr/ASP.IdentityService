@@ -22,12 +22,12 @@ namespace Infrastructure
                 options.UseInMemoryDatabase("IdentityCore");
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.SignIn.RequireConfirmedEmail = true; })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
             var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
-            
+
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -43,7 +43,7 @@ namespace Infrastructure
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = true,
-                        ValidIssuers = new[] { configuration["Jwt:Issuer"] },
+                        ValidIssuers = new[] {configuration["Jwt:Issuer"]},
                         ValidateAudience = false
                     };
                 });

@@ -16,6 +16,8 @@ namespace Application.Common.Interfaces
 
         Task<ResetPasswordCommandResult> ResetPasswordAsync(string email, string token, string newPassword);
 
-        Task<ForgotPasswordResult> GetPasswordResetTokenAsync(string email);
+        Task<ForgotPasswordCommandResult> GetPasswordResetTokenAsync(string email);
+
+        Task<VerifyEmailCommandResult> VerifyEmailAsync(string email, string token);
     }
 }

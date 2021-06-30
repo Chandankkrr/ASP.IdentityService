@@ -1,9 +1,11 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Application.Account.Commands.ChangePassword;
 using Application.Account.Commands.CreateAccount;
 using Application.Account.Commands.ForgotPassword;
 using Application.Account.Commands.ResetPassword;
+using Application.Account.Commands.VerifyEmail;
 using Application.Account.EventHandlers.CreateAccount;
 using Application.Account.EventHandlers.ResetPassword;
 using Application.Account.Queries;
@@ -44,10 +46,18 @@ namespace Web.Controllers
                 // TODO return proper status code
                 return BadRequest(response);
             }
+
+            Request.Headers.TryGetValue("Origin", out var originUrlValues);
+
+            var originUrl = originUrlValues.FirstOrDefault();
+            
+            // TODO update generating url  
+            var verifyEmailLink = $"{originUrl}/verifyemail?email={request.Email}&token={result.EmailConfirmationToken}";
             
             var createAccountNotification = new CreateAccountNotification
             {
-                Email = request.Email
+                Email = request.Email,
+                VerifyEmailLink = verifyEmailLink
             };
 
             await _mediator.Publish(createAccountNotification);
@@ -143,6 +153,25 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<ResetPasswordResponse>(result);
+            
+            if (!response.Success)
+            {
+                // TODO return proper status code
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+        
+        [HttpPost("verifyemail")]
+        [AllowAnonymous]
+        public async Task<ActionResult<VerifyEmailResponse>> VerifyEmail([FromQuery] VerifyEmailRequest request)
+        {
+            var command = _mapper.Map<VerifyEmailCommand>(request);
+            
+            var result = await _mediator.Send(command);
+
+            var response = _mapper.Map<VerifyEmailResponse>(result);
             
             if (!response.Success)
             {

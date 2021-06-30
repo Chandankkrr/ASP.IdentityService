@@ -34,6 +34,11 @@ namespace Infrastructure.Services
                 return new LoginCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
+            if (!user.EmailConfirmed)
+            {
+                return new LoginCommandResult { Errors = new[] { "Unable to login, email not verified" } };
+            }
+
             var isValidEmailPasswordCombination = await _userManager.CheckPasswordAsync(user, password);
 
             if (!isValidEmailPasswordCombination)
@@ -80,9 +85,12 @@ namespace Infrastructure.Services
                 };
             }
 
+            var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
             return new ApplicationUserResult
             {
-                Success = true
+                Success = true,
+                EmailConfirmationToken = emailConfirmationToken
             };
         }
 
@@ -167,7 +175,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ForgotPasswordResult> GetPasswordResetTokenAsync(string email)
+        public async Task<ForgotPasswordCommandResult> GetPasswordResetTokenAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -176,14 +184,43 @@ namespace Infrastructure.Services
 
                 _logger.LogWarning(userNotFoundMessage);
 
-                return new ForgotPasswordResult { Errors = new[] { userNotFoundMessage } };
+                return new ForgotPasswordCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
             var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
             
-            return new ForgotPasswordResult
+            return new ForgotPasswordCommandResult
             {
                 PasswordResetToken = passwordResetToken,
+                Success = true
+            };
+        }
+
+        public async Task<VerifyEmailCommandResult> VerifyEmailAsync(string email, string token)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                var userNotFoundMessage = $"User with email: {email} does not exists";
+
+                _logger.LogWarning(userNotFoundMessage);
+
+                return new VerifyEmailCommandResult { Errors = new[] { userNotFoundMessage } };
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            
+            if (!result.Succeeded)
+            {
+                return new VerifyEmailCommandResult
+                {
+                    Errors = result.Errors.Select(e => e.Description)
+                };
+            }
+            
+            return new VerifyEmailCommandResult
+            {
+                Response = "Email verified successfully",
                 Success = true
             };
         }

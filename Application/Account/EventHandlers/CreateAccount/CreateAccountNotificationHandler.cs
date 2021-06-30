@@ -25,8 +25,8 @@ namespace Application.Account.EventHandlers.CreateAccount
                 From = _configuration["FromEmailAddress"],
                 To = notification.Email,
                 Subject = "New account created successfully!",
-                PlainTextContent = "Hi there, your account has been created.",
-                HtmlContent = "Hi there, your account has been created."
+                PlainTextContent = $"Hi there, your account has been created. Please use the link to verify your email {notification.VerifyEmailLink}",
+                HtmlContent = $"Hi there, your account has been created. Please use the link to verify your email <a href=\"{notification.VerifyEmailLink}\">{notification.VerifyEmailLink}</a>"
             };
 
             await _emailService.Send(message);
