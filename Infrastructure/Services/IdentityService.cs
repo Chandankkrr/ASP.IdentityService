@@ -34,11 +34,6 @@ namespace Infrastructure.Services
                 return new LoginCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
-            if (!user.EmailConfirmed)
-            {
-                return new LoginCommandResult { Errors = new[] { "Unable to login, email not verified" } };
-            }
-
             var isValidEmailPasswordCombination = await _userManager.CheckPasswordAsync(user, password);
 
             if (!isValidEmailPasswordCombination)
@@ -47,6 +42,12 @@ namespace Infrastructure.Services
 
                 return new LoginCommandResult { Errors = new[] { "Email or password is incorrect" } };
             }
+
+            // TODO toggle with feature flag
+            // if (!user.EmailConfirmed)
+            // {
+            //     return new LoginCommandResult { Errors = new[] { "Unable to login, email not verified" } };
+            // }
 
             var token = _tokenService.GenerateToken(user.Id);
 
@@ -208,7 +209,8 @@ namespace Infrastructure.Services
                 return new VerifyEmailCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var decodedToken = HttpUtility.UrlDecode(token);
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
             
             if (!result.Succeeded)
             {

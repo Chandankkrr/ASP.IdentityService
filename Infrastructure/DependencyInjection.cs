@@ -22,7 +22,8 @@ namespace Infrastructure
                 options.UseInMemoryDatabase("IdentityCore");
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.SignIn.RequireConfirmedEmail = true; })
+            // TODO enable via feature flag
+            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.SignIn.RequireConfirmedEmail = false; })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 

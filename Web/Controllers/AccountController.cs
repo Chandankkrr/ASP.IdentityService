@@ -164,11 +164,10 @@ namespace Web.Controllers
         }
         
         [HttpPost("verifyemail")]
-        [AllowAnonymous]
-        public async Task<ActionResult<VerifyEmailResponse>> VerifyEmail([FromQuery] VerifyEmailRequest request)
+        public async Task<ActionResult<VerifyEmailResponse>> VerifyEmail(VerifyEmailRequest request)
         {
             var command = _mapper.Map<VerifyEmailCommand>(request);
-            
+
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<VerifyEmailResponse>(result);
