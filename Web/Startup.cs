@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using Web.Installers;
 
 namespace Web
@@ -25,6 +26,9 @@ namespace Web
         {
             services.AddControllers();
             services.AddSwagger();
+
+            services.AddAzureAppConfiguration();
+            services.AddFeatureManagement();
 
             services.AddApplication(Configuration);
             services.AddInfrastructure(Configuration);
@@ -53,6 +57,8 @@ namespace Web
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Asp.Identity v1"));
             }
+
+            app.UseAzureAppConfiguration();
 
             app.UseHttpsRedirection();
 

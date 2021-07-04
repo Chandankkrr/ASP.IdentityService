@@ -5,6 +5,7 @@ using FluentAssertions;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Moq;
 using Xunit;
 
@@ -14,8 +15,7 @@ namespace Infrastructure.Tests.Unit.Services
     {
         private readonly Mock<UserManager<IdentityUser>> _userManagerMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
-        private readonly Mock<ILogger<IdentityService>> _loggerMock;
-
+        private readonly Mock<IFeatureManager> _featureManagerMock;
         private readonly IdentityService _identityService;
 
         public IdentityServiceTests()
@@ -23,9 +23,10 @@ namespace Infrastructure.Tests.Unit.Services
             _userManagerMock = new Mock<UserManager<IdentityUser>>(new Mock<IUserStore<IdentityUser>>().Object, null,
                 null, null, null, null, null, null, null);
             _tokenServiceMock = new Mock<ITokenService>();
-            _loggerMock = new Mock<ILogger<IdentityService>>();
+            _featureManagerMock = new Mock<IFeatureManager>();
+            var loggerMock = new Mock<ILogger<IdentityService>>();
             _identityService =
-                new IdentityService(_userManagerMock.Object, _tokenServiceMock.Object, _loggerMock.Object);
+                new IdentityService(_userManagerMock.Object, _tokenServiceMock.Object, _featureManagerMock.Object, loggerMock.Object);
         }
 
         [Fact]
@@ -33,6 +34,7 @@ namespace Infrastructure.Tests.Unit.Services
         {
             // Arrange
             _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((IdentityUser) null);
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(false);
 
             // Act
             var result = await _identityService.LoginAsync("test@test.com", It.IsAny<string>());
@@ -49,6 +51,7 @@ namespace Infrastructure.Tests.Unit.Services
             _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(new IdentityUser());
             _userManagerMock.Setup(x => x.CheckPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
                 .ReturnsAsync(false);
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(false);
 
             // Act
             var result = await _identityService.LoginAsync("test@test.com", It.IsAny<string>());
@@ -56,6 +59,23 @@ namespace Infrastructure.Tests.Unit.Services
             // Assert
             result.Success.Should().BeFalse();
             result.Errors.Should().ContainSingle(e => e == "Email or password is incorrect");
+        }
+        
+        [Fact]
+        public async Task LoginAsync_ReturnsEmailVerificationRequired_WhenUserEmailNotVerifiedAndEmailVerificationRequiredFeatureIsEnabled()
+        {
+            // Arrange
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(new IdentityUser());
+            _userManagerMock.Setup(x => x.CheckPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+                .ReturnsAsync(true);
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _identityService.LoginAsync("test@test.com", It.IsAny<string>());
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Errors.Should().ContainSingle(e => e == "Unable to login, email not verified");
         }
 
         [Fact]
@@ -65,7 +85,8 @@ namespace Infrastructure.Tests.Unit.Services
             _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(new IdentityUser());
             _userManagerMock.Setup(x => x.CheckPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
                 .ReturnsAsync(true);
-
+            
+            _featureManagerMock.Setup(x => x.IsEnabledAsync(It.IsAny<string>())).ReturnsAsync(false);
             _tokenServiceMock.Setup(t => t.GenerateToken(It.IsAny<string>())).Returns("test-token");
 
             // Act

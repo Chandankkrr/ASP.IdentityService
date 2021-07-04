@@ -23,7 +23,7 @@ namespace Infrastructure
             });
 
             // TODO enable via feature flag
-            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.SignIn.RequireConfirmedEmail = false; })
+            services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 

@@ -1,7 +1,6 @@
-﻿using Application.Account.Commands.VerifyEmail;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace Application.Account.Commands.ResetPassword
+namespace Application.Account.Commands.VerifyEmail
 {
     public class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
     {

@@ -8,6 +8,7 @@ using Application.Account.Commands.ResetPassword;
 using Application.Account.Commands.VerifyEmail;
 using Application.Account.EventHandlers.CreateAccount;
 using Application.Account.EventHandlers.ResetPassword;
+using Application.Account.EventHandlers.VerifyEmail;
 using Application.Account.Queries;
 using AutoMapper;
 using Contracts.Account.Requests;
@@ -15,6 +16,7 @@ using Contracts.Account.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
 namespace Web.Controllers
@@ -25,64 +27,80 @@ namespace Web.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly IFeatureManager _featureManager;
 
-        public AccountController(IMediator mediatR, IMapper mapper)
+        public AccountController(IMediator mediatR, IMapper mapper, IFeatureManager featureManager)
         {
             _mediator = mediatR;
             _mapper = mapper;
+            _featureManager = featureManager;
         }
 
         [HttpPost("create")]
         public async Task<ActionResult<CreateAccountResponse>> Create(CreateAccountRequest request)
         {
             var command = _mapper.Map<CreateAccountCommand>(request);
-            
+
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<CreateAccountResponse>(result);
-            
+
             if (!response.Success)
             {
                 // TODO return proper status code
                 return BadRequest(response);
             }
 
-            Request.Headers.TryGetValue("Origin", out var originUrlValues);
-
-            var originUrl = originUrlValues.FirstOrDefault();
-            
-            // TODO update generating url  
-            var verifyEmailLink = $"{originUrl}/verifyemail?email={request.Email}&token={result.EmailConfirmationToken}";
-            
-            var createAccountNotification = new CreateAccountNotification
+            var isEmailVerificationFeatureEnabled = await _featureManager.IsEnabledAsync("RequireEmailVerification");
+            if (isEmailVerificationFeatureEnabled)
             {
-                Email = request.Email,
-                VerifyEmailLink = verifyEmailLink
-            };
+                Request.Headers.TryGetValue("Origin", out var originUrlValues);
 
-            await _mediator.Publish(createAccountNotification);
+                var originUrl = originUrlValues.FirstOrDefault();
+
+                // TODO update generating url
+                var verifyEmailLink =
+                    $"{originUrl}/verifyemail?email={request.Email}&token={result.EmailConfirmationToken}";
+
+                var verifyEmailNotification = new VerifyEmailNotification
+                {
+                    Email = request.Email,
+                    VerifyEmailLink = verifyEmailLink
+                };
+
+                await _mediator.Publish(verifyEmailNotification);
+            }
+            else
+            {
+                var createAccountNotification = new CreateAccountNotification
+                {
+                    Email = request.Email
+                };
+
+                await _mediator.Publish(createAccountNotification);
+            }
 
             return CreatedAtAction("GetUser", response);
         }
-        
+
         [Authorize]
         [HttpGet("user")]
         public async Task<ActionResult<GetUserResponse>> GetUser()
         {
             var authorizationHeader = Request.Headers[HeaderNames.Authorization];
             AuthenticationHeaderValue.TryParse(authorizationHeader, out var bearerToken);
-            
+
             var request = new GetUserRequest
             {
                 Token = bearerToken?.Parameter
             };
-            
+
             var query = _mapper.Map<GetUserQuery>(request);
-            
+
             var result = await _mediator.Send(query);
 
             var response = _mapper.Map<GetUserResponse>(result);
-            
+
             if (!response.Success)
             {
                 // TODO return proper status code
@@ -98,14 +116,14 @@ namespace Web.Controllers
         {
             var authorizationHeader = Request.Headers[HeaderNames.Authorization];
             AuthenticationHeaderValue.TryParse(authorizationHeader, out var bearerToken);
-            
+
             var command = _mapper.Map<ChangePasswordCommand>(request);
             command.Token = bearerToken?.Parameter;
 
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<ChangePasswordResponse>(result);
-            
+
             if (!response.Success)
             {
                 // TODO return proper status code
@@ -122,10 +140,10 @@ namespace Web.Controllers
 
             var result = await _mediator.Send(command);
             var resetPasswordLink = Url.Action(nameof(ResetPassword), "Account", new
-                {
-                    email = request.Email,
-                    token = result.PasswordResetToken
-                },
+            {
+                email = request.Email,
+                token = result.PasswordResetToken
+            },
                 Request.Scheme
             );
 
@@ -149,11 +167,11 @@ namespace Web.Controllers
         public async Task<ActionResult<ResetPasswordResponse>> ResetPassword(ResetPasswordRequest request)
         {
             var command = _mapper.Map<ResetPasswordCommand>(request);
-            
+
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<ResetPasswordResponse>(result);
-            
+
             if (!response.Success)
             {
                 // TODO return proper status code
@@ -162,7 +180,7 @@ namespace Web.Controllers
 
             return Ok(response);
         }
-        
+
         [HttpPost("verifyemail")]
         public async Task<ActionResult<VerifyEmailResponse>> VerifyEmail(VerifyEmailRequest request)
         {
@@ -171,7 +189,7 @@ namespace Web.Controllers
             var result = await _mediator.Send(command);
 
             var response = _mapper.Map<VerifyEmailResponse>(result);
-            
+
             if (!response.Success)
             {
                 // TODO return proper status code

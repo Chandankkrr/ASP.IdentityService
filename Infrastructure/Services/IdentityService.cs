@@ -6,6 +6,7 @@ using Application.Common.Models.Account;
 using Application.Common.Models.Login;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 
 namespace Infrastructure.Services
 {
@@ -13,12 +14,14 @@ namespace Infrastructure.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly IFeatureManager _featureManager;
         private readonly ILogger<IdentityService> _logger;
 
-        public IdentityService(UserManager<IdentityUser> userManager, ITokenService tokenService, ILogger<IdentityService> logger)
+        public IdentityService(UserManager<IdentityUser> userManager, ITokenService tokenService, IFeatureManager featureManager, ILogger<IdentityService> logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _featureManager = featureManager;
             _logger = logger;
         }
 
@@ -43,11 +46,11 @@ namespace Infrastructure.Services
                 return new LoginCommandResult { Errors = new[] { "Email or password is incorrect" } };
             }
 
-            // TODO toggle with feature flag
-            // if (!user.EmailConfirmed)
-            // {
-            //     return new LoginCommandResult { Errors = new[] { "Unable to login, email not verified" } };
-            // }
+            var isEmailVerificationFeatureEnabled = await _featureManager.IsEnabledAsync("RequireEmailVerification");
+            if (isEmailVerificationFeatureEnabled && !user.EmailConfirmed)
+            {
+                return new LoginCommandResult { Errors = new[] { "Unable to login, email not verified" } };
+            }
 
             var token = _tokenService.GenerateToken(user.Id);
 
@@ -75,7 +78,7 @@ namespace Infrastructure.Services
                 UserName = email,
                 Email = email
             };
-            
+
             var result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
@@ -121,7 +124,7 @@ namespace Infrastructure.Services
         public async Task<ChangePasswordCommandResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
         {
             var user = await _userManager.FindByIdAsync(userId);
-            
+
             if (user == null)
             {
                 return new ChangePasswordCommandResult
@@ -139,7 +142,7 @@ namespace Infrastructure.Services
                     Errors = result.Errors.Select(e => e.Description)
                 };
             }
-            
+
             return new ChangePasswordCommandResult
             {
                 Success = true
@@ -157,7 +160,7 @@ namespace Infrastructure.Services
 
                 return new ResetPasswordCommandResult { Errors = new[] { userNotFoundMessage } };
             }
-            
+
             var decodedToken = HttpUtility.UrlDecode(token);
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
 
@@ -189,7 +192,7 @@ namespace Infrastructure.Services
             }
 
             var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            
+
             return new ForgotPasswordCommandResult
             {
                 PasswordResetToken = passwordResetToken,
@@ -209,9 +212,18 @@ namespace Infrastructure.Services
                 return new VerifyEmailCommandResult { Errors = new[] { userNotFoundMessage } };
             }
 
+            if (user.EmailConfirmed)
+            {
+                return new VerifyEmailCommandResult
+                {
+                    Response = "Email has been already verified",
+                    Success = true
+                };
+            }
+
             var decodedToken = HttpUtility.UrlDecode(token);
             var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
-            
+
             if (!result.Succeeded)
             {
                 return new VerifyEmailCommandResult
@@ -219,7 +231,7 @@ namespace Infrastructure.Services
                     Errors = result.Errors.Select(e => e.Description)
                 };
             }
-            
+
             return new VerifyEmailCommandResult
             {
                 Response = "Email verified successfully",
